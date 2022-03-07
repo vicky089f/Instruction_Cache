@@ -1,4 +1,4 @@
-# Instruction_Cache
+# Instruction Cache
 A simple instruction cache model in verilog
 
 ## Features
