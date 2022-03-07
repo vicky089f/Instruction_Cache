@@ -40,88 +40,21 @@ module tb_top;
 		.stall(stall)
 	);
 	
-	integer i;
-	always #10 clk = ~clk;
+	integer i,file_addr;
+	always #5 clk = ~clk;
+	
 
 	initial begin
-		// Initialize Inputs
 		clk = 0;
-		//pc = 0;
-
-		// Wait 100 ns for global reset to finish
-		#100;
+		file_addr = $fopen("F:\\BITS\\Year 3 Sem 1\\ADV VLSI Arch\\Assignment 1\\ADV_VLSI\\address.txt","r");
+		#20;
         
 		// Add stimulus here
-		//pc = 0;
-		/*for(i=0;i<15;i=i+1)
-			#500 pc = pc + 4;
-		
-		
-		#500 pc = 52;
-		#500 pc = 4;
-		#500 pc = 8;
-		#500 pc = 36;
-		#500 pc = 16;
-		#500 pc = 56;
-		#500 pc = 24;
-		#500 pc = 60;
-		
-		#500 pc = 32;
-		#500 pc = 20;
-		#500 pc = 0;
-		#500 pc = 44;
-		#500 pc = 48;
-		#500 pc = 12;
-		#500 pc = 28;
-		#500 pc = 40;
-		
-		pc = 64;
-		for(i=0;i<15;i=i+1)
-		#500 pc = pc + 4;
-		
-		#500 pc = 88;
-		#500 pc = 68;
-		#500 pc = 108;
-		#500 pc = 124;
-		#500 pc = 104;
-		#500 pc = 96;
-		#500 pc = 64;
-		#500 pc = 112;
-		
-		#500 pc = 76;
-		#500 pc = 72;
-		#500 pc = 116;
-		#500 pc = 100;
-		#500 pc = 80;
-		#500 pc = 92;
-		#500 pc = 120;
-		#500 pc = 84;
-		
-		
-		#500 $finish;*/
-		
-		/*#500 pc = 32'h00;
-		#500 pc = 32'h08;
-		#500 pc = 32'h04;
-		#500 pc = 32'h1C;
-		#500 pc = 32'h24;
-		#500 pc = 32'h14;
-		#500 pc = 32'h24;
-		#500 pc = 32'h54;
-		
-		#5000 $finish;*/
-		
-		#500 pc = 32'h00;
-		#500 pc = 32'h08;
-		#500 pc = 32'h04;
-		#500 pc = 32'h1C;
-		#500 pc = 32'h24;
-		#500 pc = 32'h14;
-		#500 pc = 32'h24;
-		#500 pc = 32'h54;
-		
-		#1000 $finish;
-
+	end
+	
+	always@(negedge clk) begin
+		if(stall == 0)
+		 repeat(1) @(negedge clk) i <= $fscanf(file_addr, "%x\n", pc);
 	end
       
 endmodule

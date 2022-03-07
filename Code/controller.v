@@ -60,43 +60,43 @@ always@ (state)
 begin
 	if (state == reset)
 	begin
-		cache_reset = 1;
-		cache_wr = 0;
-		cache_rd = 0;
-		mem_rd = 0;
-		w_sel = 1'bz;
-		stall = 0;
+		cache_reset <= 1;
+		cache_wr <= 0;
+		cache_rd <= 0;
+		mem_rd <= 0;
+		w_sel <= 1'bz;
+		stall <= 0;
 	end
 	
 	else if (state == idle)
 	begin
-		cache_reset = 0;
-		cache_wr = 0;
-		cache_rd = 0;
-		mem_rd = 0;
-		w_sel = 1'bz;
-		stall = 0;
+		cache_reset <= 0;
+		cache_wr <= 0;
+		cache_rd <= 0;
+		mem_rd <= 0;
+		w_sel <= 1'bz;
+		stall <= 0;
 	end
 	
 	else if(state == rd)
 	begin
-		cache_reset = 0;
-		cache_wr = 0;
-		cache_rd = 1;
-		mem_rd = 0;
-		w_sel = 1'bz;
-		stall = 0;
+		cache_reset <= 0;
+		cache_wr <= 0;
+		cache_rd <= 1;
+		mem_rd <= 0;
+		w_sel <= 1'bz;
+		stall <= 0;
 	end
 	
 	else if(state == wr1)
 	begin
-		cache_reset = 0;
-		cache_wr = 0;
-		cache_rd = 0;
-		mem_rd = 1;
-		w_sel = 1'b0;
-		stall = 1;
-		wait (mem_ready == 1) cache_wr = 1;
+		cache_reset <= 0;
+		cache_wr <= 0;
+		cache_rd <= 0;
+		mem_rd <= 1;
+		w_sel <= 1'b0;
+		stall <= 1;
+		wait (mem_ready == 1) cache_wr <= 1;
 		/*wait (write_done == 1) begin
 			cache_wr = 0;
 			mem_rd = 0;
@@ -105,13 +105,13 @@ begin
 	
 	else if(state == wr2)
 	begin
-		cache_reset = 0;
-		cache_wr = 0;
-		cache_rd = 0;
-		mem_rd = 1;
-		w_sel = 1'b1;
-		stall = 1;
-		wait (mem_ready == 1) cache_wr = 1;
+		cache_reset <= 0;
+		cache_wr <= 0;
+		cache_rd <= 0;
+		mem_rd <= 1;
+		w_sel <= 1'b1;
+		stall <= 1;
+		wait (mem_ready == 1) cache_wr <= 1;
 		/*wait (write_done == 1) begin
 			cache_wr = 0;
 			mem_rd = 0;

@@ -18,6 +18,8 @@
 // Additional Comments: 
 //
 //////////////////////////////////////////////////////////////////////////////////
+
+
 module ram(
     input clk,
     //input wren,
@@ -29,53 +31,37 @@ module ram(
     output reg [31:0] data_out
     );
 integer i;
-reg [31:0] my_ram [31:0];
-reg [31:0] q;
-reg r;
+reg [7:0] my_ram [127:0];
 
 initial begin //initialising ram with some data
-	for(i=0;i<32;i=i+1)
+	for(i=0;i<128;i=i+4)
 	begin
-		my_ram[i] = i;
+		{my_ram[i+3],my_ram[i+2],my_ram[i+1],my_ram[i]} = {i+3,i+2,i+1,i};
 	end
 end
 
-always@(posedge clk)
+/*always@(posedge clk)
 begin
-//	if(wren)
-//	begin
-//		my_ram[addr[6:2]] <= data_in[31:0];
-//	end
+	if(wren)
+		my_ram[addr[6:2]] <= data_in[31:0];
+end*/
 
-	if(rden)
-	begin
-		q = my_ram[{addr[6:3],w_sel}];
-		//q = my_ram[addr[6:2]];
-		r = 1;
-	end
-	else
-	begin
-		q = 32'h zz_zz_zz_zz;
-		r = 0;
-		ready = 0;
-	end
-end
 
-always@(q or w_sel)
+always@(rden,w_sel)
 begin
-	ready = 0;
-
-	repeat(10) begin
-		@(posedge clk);
+	if (rden)
+	begin
+		data_out <= repeat(4) @(posedge clk) 
+		{my_ram[{addr[6:3],w_sel,addr[1:0]}+3],my_ram[{addr[6:3],w_sel,addr[1:0]}+2]
+		,my_ram[{addr[6:3],w_sel,addr[1:0]}+1],my_ram[{addr[6:3],w_sel,addr[1:0]}]};
+		
+		ready <= repeat(4) @(posedge clk) 1'b1;
 	end
-	data_out = q;
-	ready = r;
 end
 
 always@(posedge ready)
 begin
-	repeat(1) @(negedge clk)
-	ready = 0;
+	ready <= repeat(1) @(negedge clk) 1'b0;
 end
 
 endmodule

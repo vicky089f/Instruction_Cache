@@ -32,26 +32,24 @@ module cache(
     output hit
     );
 
-reg [31:0] q;
-reg r;
-
 //Block 0
-reg [31:0] data_0 [7:0];
-reg [1:0] tag_0 [3:0];
+reg [63:0] data_0 [3:0];
+reg [26:0] tag_0 [3:0];
 reg [3:0] valid_0; //valid_0 [7:0]
 reg [3:0] lru_0; //lru_0[3:0]
 
 //Block 1
-reg [31:0] data_1 [7:0];
-reg [1:0] tag_1 [3:0];
+reg [63:0] data_1 [3:0];
+reg [26:0] tag_1 [3:0];
 reg [3:0] valid_1; //valid_1 [7:0]
 reg [3:0] lru_1; //lru_1[3:0]
 
-wire [1:0] tag, index;
+wire [26:0] tag;
+wire [1:0] index;
 wire b_off;
 wire t0,h0,t1,h1;
 
-assign tag = addr[6:5];
+assign tag = addr[31:5];
 assign index = addr[4:3];
 assign b_off = addr[2];
 
@@ -67,8 +65,8 @@ always@(posedge clk)
 begin
 	if(reset == 1)
 	begin
-		valid_0 = 8'h00;
-		valid_1 = 8'h00;
+		valid_0 <= 8'h00;
+		valid_1 <= 8'h00;
 	end
 
 
@@ -76,32 +74,33 @@ begin
 	begin
 		if(h0)
 		begin
-			q = data_0[{index,b_off}];
-			r = 1;
-			lru_0[index] = 1'b0;
-			lru_1[index] = 1'b1;
-				end
+			if (b_off) data_out <= data_0[index][63:32];
+			else data_out <= data_0[index][31:0];
+			ready <= 1'b1;
+			lru_0[index] <= 1'b0;
+			lru_1[index] <= 1'b1;
+		end
 		else if(h1)
 		begin
-			q = data_1[{index,b_off}];
-			r = 1;
-			lru_1[index] = 1'b0;
-			lru_0[index] = 1'b1;
+			if (b_off) data_out <= data_1[index][63:32];
+			else data_out <= data_1[index][31:0];
+			ready <= 1'b1;
+			lru_1[index] <= 1'b0;
+			lru_0[index] <= 1'b1;
 		end
 		else
 		begin
-			q = 32'hzz_zz_zz_zz;
-			r = 0;
+			ready <= 0;
 		end
 	end
 
 
 	if(wren)
 	begin
-		write_done = 0;
-		if(!valid_0[index])
+		if(!valid_0[index]) //Block 0 if set[index]
 		begin
-			data_0[{index,w_sel}] <= data_in;
+			if(w_sel) data_0[index][63:32] <= data_in;
+			else data_0[index][31:0] <= data_in;
 			write_done <= 1;
 			if(w_sel)
 			begin
@@ -113,7 +112,8 @@ begin
 		end
 		else if(!valid_1[index])
 		begin
-			data_1[{index,w_sel}] <= data_in;
+			if(w_sel) data_1[index][63:32] <= data_in;
+			else data_1[index][31:0] <= data_in;
 			write_done <= 1;
 			if(w_sel)
 			begin
@@ -125,7 +125,8 @@ begin
 		end
 		else if(lru_0[index])
 		begin
-			data_0[{index,w_sel}] <= data_in;
+			if(w_sel) data_0[index][63:32] <= data_in;
+			else data_0[index][31:0] <= data_in;
 			write_done <= 1;
 			if(w_sel)
 			begin
@@ -137,7 +138,8 @@ begin
 		end
 		else if(lru_1[index])
 		begin
-			data_1[{index,w_sel}] <= data_in;
+			if(w_sel) data_1[index][63:32] <= data_in;
+			else data_1[index][31:0] <= data_in;
 			write_done <= 1;
 			if(w_sel)
 			begin
@@ -146,22 +148,9 @@ begin
 				lru_1[index] <= 1'b0;
 				lru_0[index] <= 1'b1;
 			end
-		end	
+		end
+		write_done <= repeat(1) @(negedge clk) 0;
 	end
-end
-
-always@(posedge write_done)
-begin
-	repeat(1) @(negedge clk)
-		write_done = 0;
-end
-
-always@(q)
-begin
-	ready = 0;
-	repeat(1) @(posedge clk);
-	data_out = q;
-	ready = r;
 end
 
 endmodule
