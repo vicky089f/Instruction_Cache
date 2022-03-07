@@ -46,7 +46,7 @@ module tb_top;
 
 	initial begin
 		clk = 0;
-		file_addr = $fopen("F:\\BITS\\Year 3 Sem 1\\ADV VLSI Arch\\Assignment 1\\ADV_VLSI\\address.txt","r");
+		file_addr = $fopen("address.txt","r");
 		#20;
         
 		// Add stimulus here
